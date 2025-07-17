@@ -1,0 +1,198 @@
+import express from "express";
+import { getCoordinates } from "../middleware/getCoordinates.js";
+import Journey from "../models/journeySchema.js";
+import Users from "../models/SignupSchema.js";
+import mongoose from "mongoose";
+
+const router = express.Router();
+
+// router.post("/create-journey", async (req, res) => {
+//   const { fromAddress, toAddress, date, time, status, email } = req.body;
+
+//   try {
+//     const fromCoords = await getCoordinates(fromAddress);
+//     const toCoords = await getCoordinates(toAddress);
+
+//     const journeyData = {
+//       email,
+//       from: {
+//         address: fromAddress,
+//         location: {
+//           type: "Point",
+//           coordinates: [fromCoords.lng, fromCoords.lat],
+//         },
+//       },
+//       to: {
+//         address: toAddress,
+//         location: {
+//           type: "Point",
+//           coordinates: [toCoords.lng, toCoords.lat],
+//         },
+//       },
+//       date,
+//       time: new Date(`${date}T${time}:00Z`), // Convert time string to full ISO
+//       status,
+//     };
+
+//     const journey = new Journey(journeyData);
+//     await journey.save();
+
+//     res.status(200).json({ success: true, journey });
+//   } catch (error) {
+//     res.status(400).json({ success: false, message: error.message });
+//   }
+// });
+
+// router.post("/getCompanions", async (req, res) => {
+//   try {
+//     const { email } = req.body;
+
+//     const userJourney = await Journey.findOne({ email });
+//     if (!userJourney) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "User journey not found" });
+//     }
+
+//     const journeyTime = new Date(userJourney.time);
+//     const lowerBound = new Date(journeyTime.getTime() - 5 * 60 * 1000);
+//     const upperBound = new Date(journeyTime.getTime() + 5 * 60 * 1000);
+
+//     const fromMatches = await Journey.find({
+//       date: userJourney.date,
+//       time: { $gte: lowerBound, $lte: upperBound },
+//       status: "active",
+//       "from.location": {
+//         $near: {
+//           $geometry: {
+//             type: "Point",
+//             coordinates: userJourney.from.location.coordinates,
+//           },
+//           $maxDistance: 2000, // 2 km
+//         },
+//       },
+//     });
+
+//     const finalMatches = fromMatches.filter((j) => {
+//       const [lng, lat] = j.to.location.coordinates;
+//       const [targetLng, targetLat] = userJourney.to.location.coordinates;
+//       return getDistanceFromLatLonInKm(lat, lng, targetLat, targetLng) <= 1;
+//     });
+
+//     const companionEmails = finalMatches.map((match) => match.email);
+
+//     const userDetails = await Users.find({ email: { $in: companionEmails } });
+
+//     // Combine user info with journey info
+//     const combined = finalMatches.map((match) => {
+//       const user = userDetails.find((u) => u.email === match.email);
+//       return {
+//         journey: match,
+//         user: user || null, // fallback in case user not found
+//       };
+//     });
+
+//     return res.status(200).json({ success: true, companions: combined });
+//   } catch (error) {
+//     console.error("getCompanions error:", error);
+//     res.status(500).json({ success: false, message: error.message });
+//   }
+// });
+
+router.post("/createJourneyAndGetCompanions", async (req, res) => {
+  const { email, fromAddress, toAddress, date, time, status } = req.body;
+
+  try {
+    const fromCoords = await getCoordinates(fromAddress);
+    const toCoords = await getCoordinates(toAddress);
+
+    const journeyTime = new Date(`${date}T${time}:00Z`);
+    const lowerBound = new Date(journeyTime.getTime() - 5 * 60 * 1000);
+    const upperBound = new Date(journeyTime.getTime() + 5 * 60 * 1000);
+
+    const journeyData = {
+      email,
+      from: {
+        address: fromAddress,
+        location: {
+          type: "Point",
+          coordinates: [fromCoords.lng, fromCoords.lat],
+        },
+      },
+      to: {
+        address: toAddress,
+        location: {
+          type: "Point",
+          coordinates: [toCoords.lng, toCoords.lat],
+        },
+      },
+      date,
+      time: journeyTime,
+      status,
+    };
+
+    const journey = new Journey(journeyData);
+    await journey.save();
+
+    const fromMatches = await Journey.find({
+      email: { $ne: email },
+      date,
+      time: { $gte: lowerBound, $lte: upperBound },
+      status: "active",
+      "from.location": {
+        $near: {
+          $geometry: {
+            type: "Point",
+            coordinates: [fromCoords.lng, fromCoords.lat],
+          },
+          $maxDistance: 2000,
+        },
+      },
+    });
+
+    const finalMatches = fromMatches.filter((j) => {
+      const [lng, lat] = j.to.location.coordinates;
+      return (
+        getDistanceFromLatLonInKm(lat, lng, toCoords.lat, toCoords.lng) <= 1
+      );
+    });
+
+    const companionEmails = finalMatches.map((match) => match.email);
+    const userDetails = await Users.find({ email: { $in: companionEmails } });
+
+    const combined = finalMatches.map((match) => {
+      const user = userDetails.find((u) => u.email === match.email);
+      return {
+        journey: match,
+        user: user || null,
+      };
+    });
+
+    return res.status(200).json({
+      success: true,
+      journey,
+      companions: combined,
+    });
+  } catch (error) {
+    console.error("Combined error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Distance helper
+function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = deg2rad(lat2 - lat1);
+  const dLon = deg2rad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+function deg2rad(deg) {
+  return deg * (Math.PI / 180);
+}
+
+export default router;
