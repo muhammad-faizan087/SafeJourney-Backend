@@ -26,6 +26,14 @@ const conversationSchema = new mongoose.Schema(
       type: String,
       // required: true,
     },
+    origin: {
+      type: String,
+      required: true,
+    },
+    destination: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );

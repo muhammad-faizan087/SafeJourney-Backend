@@ -155,12 +155,20 @@ router.get("/getConversations", authMiddleware, async (req, res) => {
 });
 
 router.post("/createConversation", authMiddleware, async (req, res) => {
-  const { receiverId, receiverName, senderName } = req.body;
+  const { receiverId, receiverName, senderName, origin, destination } =
+    req.body;
   const currUser = req.user;
   const senderId = await Users.findOne({ email: currUser.email }).then(
     (user) => user._id
   );
-  if (!senderId || !receiverId || !receiverName || !senderName) {
+  if (
+    !senderId ||
+    !receiverId ||
+    !receiverName ||
+    !senderName ||
+    !origin ||
+    !destination
+  ) {
     return res.status(400).json({
       success: false,
       message: "All fields are required",
@@ -168,6 +176,8 @@ router.post("/createConversation", authMiddleware, async (req, res) => {
       receiverId,
       receiverName,
       senderName,
+      origin,
+      destination,
     });
   }
   try {
@@ -182,6 +192,8 @@ router.post("/createConversation", authMiddleware, async (req, res) => {
         receiverName,
         senderName,
         lastMessage: "",
+        origin,
+        destination,
       });
     }
 
