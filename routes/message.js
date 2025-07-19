@@ -64,6 +64,8 @@ router.post("/sendMessage/", authMiddleware, async (req, res) => {
       io.to(receiverSocketId).emit("newMessage", {
         message: newMessage,
         conversationId: conversation._id,
+        senderName: `${sender.firstName} ${sender.lastName}`,
+        receiverName: `${receiver.firstName} ${receiver.lastName}`,
       });
     }
 
@@ -72,6 +74,8 @@ router.post("/sendMessage/", authMiddleware, async (req, res) => {
       io.to(senderSocketId).emit("newMessage", {
         message: newMessage,
         conversationId: conversation._id,
+        senderName: `${sender.firstName} ${sender.lastName}`,
+        receiverName: `${receiver.firstName} ${receiver.lastName}`,
       });
     }
 

@@ -24,4 +24,4 @@ const SendMail = async () => {
   }
 };
 
-SendMail();
+// SendMail();
