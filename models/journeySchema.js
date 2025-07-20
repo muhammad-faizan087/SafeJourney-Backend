@@ -36,7 +36,7 @@ const journeySchema = new mongoose.Schema({
   time: { type: Date, required: true }, // ISO Date
   status: {
     type: String,
-    enum: ["active", "matched", "cancelled", "completed"],
+    enum: ["active", "matched", "inactive"],
     default: "active",
   },
 });

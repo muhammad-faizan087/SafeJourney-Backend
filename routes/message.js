@@ -161,13 +161,18 @@ router.post("/createConversation", authMiddleware, async (req, res) => {
   const senderId = await Users.findOne({ email: currUser.email }).then(
     (user) => user._id
   );
+  const receiverEmail = await Users.findOne({ _id: receiverId }).then(
+    (user) => user.email
+  );
   if (
     !senderId ||
     !receiverId ||
     !receiverName ||
     !senderName ||
     !origin ||
-    !destination
+    !destination ||
+    !receiverEmail ||
+    !currUser.email
   ) {
     return res.status(400).json({
       success: false,
@@ -178,6 +183,8 @@ router.post("/createConversation", authMiddleware, async (req, res) => {
       senderName,
       origin,
       destination,
+      receiverEmail,
+      senderEmail: currUser.email,
     });
   }
   try {
@@ -194,6 +201,8 @@ router.post("/createConversation", authMiddleware, async (req, res) => {
         lastMessage: "",
         origin,
         destination,
+        receiverEmail,
+        senderEmail: currUser.email,
       });
     }
 

@@ -34,6 +34,16 @@ const conversationSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    receiverEmail: {
+      type: String,
+      ref: "Users",
+      required: true,
+    },
+    senderEmail: {
+      type: String,
+      ref: "Users",
+      required: true,
+    },
   },
   { timestamps: true }
 );
