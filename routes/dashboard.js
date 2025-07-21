@@ -25,6 +25,7 @@ router.get("/", authMiddleware, async (req, res) => {
       contacts: User.Emergency_Contacts,
       email: User.email,
       id: User._id,
+      Notifications: User.Notifications,
       message: "User Data found.",
     });
   } catch (error) {

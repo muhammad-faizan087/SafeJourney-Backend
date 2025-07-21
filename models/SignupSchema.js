@@ -14,6 +14,7 @@ const SignupSchema = new mongoose.Schema(
     },
     Emergency_Contacts: { type: Array, default: null },
     Routes: { type: Array, default: null },
+    Notifications: { type: Array, default: [] },
   },
   { timestamps: true }
 );

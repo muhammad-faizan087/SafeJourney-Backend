@@ -66,6 +66,7 @@ router.post("/sendMessage/", authMiddleware, async (req, res) => {
         conversationId: conversation._id,
         senderName: `${sender.firstName} ${sender.lastName}`,
         receiverName: `${receiver.firstName} ${receiver.lastName}`,
+        type: "Received",
       });
     }
 
@@ -76,6 +77,7 @@ router.post("/sendMessage/", authMiddleware, async (req, res) => {
         conversationId: conversation._id,
         senderName: `${sender.firstName} ${sender.lastName}`,
         receiverName: `${receiver.firstName} ${receiver.lastName}`,
+        type: "Sent",
       });
     }
 

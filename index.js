@@ -9,6 +9,7 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import journey from "./routes/journeys.js";
 import message from "./routes/message.js";
+import notify from "./routes/notify.js";
 import { io, server, app } from "./Socket/server.js";
 
 dotenv.config();
@@ -28,6 +29,7 @@ app.use("/verification", Verification);
 app.use("/dashboard", dashboard);
 app.use("/journeys", journey);
 app.use("/message", message);
+app.use("/notify", notify);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
