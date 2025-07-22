@@ -8,20 +8,110 @@ import { io } from "../Socket/server.js";
 
 const router = express.Router();
 
-router.post("/sendMessage/", authMiddleware, async (req, res) => {
-  const { message, receiverId } = req.body;
-  const currUser = req.user;
+// router.post("/sendMessage/", async (req, res) => {
+//   const { message, receiverId, senderEmail } = req.body;
+//   // const currUser = req.user;
 
-  if (!receiverId || !message) {
-    return res.status(400).json({
-      success: false,
-      message: "Receiver and message are required",
-    });
-  }
+//   if (!receiverId || !message || !senderEmail) {
+//     return res.status(400).json({
+//       success: false,
+//       message: "Receiver and message are required",
+//     });
+//   }
 
+//   try {
+//     const sender = await Users.findOne({ email: senderEmail });
+//     const receiver = await Users.findById(receiverId);
+
+//     if (!sender || !receiver) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "User not found" });
+//     }
+
+//     const newMessage = new Message({
+//       senderId: sender._id,
+//       receiverId,
+//       message,
+//     });
+
+//     let conversation = await Conversation.findOne({
+//       participants: { $all: [sender._id, receiverId] },
+//     });
+
+//     if (!conversation) {
+//       conversation = new Conversation({
+//         participants: [sender._id, receiverId],
+//         messages: [newMessage._id],
+//         receiverName: `${receiver.firstName} ${receiver.lastName}`,
+//         senderName: `${sender.firstName} ${sender.lastName}`,
+//         lastMessage: message,
+//       });
+//     } else {
+//       conversation.messages.push(newMessage._id);
+//       conversation.lastMessage = message;
+//     }
+
+//     await newMessage.save();
+//     await conversation.save();
+
+//     const receiverSocketId = getReceiverSocketId(receiverId);
+
+//     const senderSocketId = getReceiverSocketId(sender._id);
+
+//     // Emit to receiver (if online)
+//     if (receiverSocketId) {
+//       io.to(receiverSocketId).emit("newMessage", {
+//         message: newMessage,
+//         conversationId: conversation._id,
+//         senderName: `${sender.firstName} ${sender.lastName}`,
+//         receiverName: `${receiver.firstName} ${receiver.lastName}`,
+//         type: "Received",
+//         receiverId,
+//       });
+//     }
+
+//     // Emit to sender (if online)
+//     if (senderSocketId) {
+//       io.to(senderSocketId).emit("newMessage", {
+//         message: newMessage,
+//         conversationId: conversation._id,
+//         senderName: `${sender.firstName} ${sender.lastName}`,
+//         receiverName: `${receiver.firstName} ${receiver.lastName}`,
+//         type: "Sent",
+//         receiverId,
+//       });
+//     }
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Message sent successfully",
+//       newMessage,
+//     });
+//   } catch (error) {
+//     console.error("Error sending message:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Server Error",
+//     });
+//   }
+// });
+
+router.post("/sendMessage/", async (req, res) => {
   try {
-    const sender = await Users.findOne({ email: currUser.email });
-    const receiver = await Users.findById(receiverId);
+    const { message, receiverId, senderEmail } = req.body;
+
+    if (!receiverId || !message || !senderEmail) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Required fields missing" });
+    }
+
+    // Use Promise.all to fetch users in parallel
+    const [sender, receiver] = await Promise.all([
+      Users.findOne({ email: senderEmail }).lean(),
+      Users.findById(receiverId).lean(),
+    ]);
 
     if (!sender || !receiver) {
       return res
@@ -52,14 +142,11 @@ router.post("/sendMessage/", authMiddleware, async (req, res) => {
       conversation.lastMessage = message;
     }
 
-    await newMessage.save();
-    await conversation.save();
+    // Save all at once
+    await Promise.all([newMessage.save(), conversation.save()]);
 
+    // Emit to receiver only
     const receiverSocketId = getReceiverSocketId(receiverId);
-
-    const senderSocketId = getReceiverSocketId(sender._id);
-
-    // Emit to receiver (if online)
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("newMessage", {
         message: newMessage,
@@ -67,17 +154,7 @@ router.post("/sendMessage/", authMiddleware, async (req, res) => {
         senderName: `${sender.firstName} ${sender.lastName}`,
         receiverName: `${receiver.firstName} ${receiver.lastName}`,
         type: "Received",
-      });
-    }
-
-    // Emit to sender (if online)
-    if (senderSocketId) {
-      io.to(senderSocketId).emit("newMessage", {
-        message: newMessage,
-        conversationId: conversation._id,
-        senderName: `${sender.firstName} ${sender.lastName}`,
-        receiverName: `${receiver.firstName} ${receiver.lastName}`,
-        type: "Sent",
+        receiverId,
       });
     }
 
@@ -156,11 +233,17 @@ router.get("/getConversations", authMiddleware, async (req, res) => {
   }
 });
 
-router.post("/createConversation", authMiddleware, async (req, res) => {
-  const { receiverId, receiverName, senderName, origin, destination } =
-    req.body;
-  const currUser = req.user;
-  const senderId = await Users.findOne({ email: currUser.email }).then(
+router.post("/createConversation", async (req, res) => {
+  const {
+    receiverId,
+    receiverName,
+    senderName,
+    origin,
+    destination,
+    senderEmail,
+  } = req.body;
+  // const currUser = req.user;
+  const senderId = await Users.findOne({ email: senderEmail }).then(
     (user) => user._id
   );
   const receiverEmail = await Users.findOne({ _id: receiverId }).then(
@@ -174,7 +257,7 @@ router.post("/createConversation", authMiddleware, async (req, res) => {
     !origin ||
     !destination ||
     !receiverEmail ||
-    !currUser.email
+    !senderEmail
   ) {
     return res.status(400).json({
       success: false,
@@ -186,7 +269,7 @@ router.post("/createConversation", authMiddleware, async (req, res) => {
       origin,
       destination,
       receiverEmail,
-      senderEmail: currUser.email,
+      senderEmail: senderEmail,
     });
   }
   try {
@@ -204,7 +287,7 @@ router.post("/createConversation", authMiddleware, async (req, res) => {
         origin,
         destination,
         receiverEmail,
-        senderEmail: currUser.email,
+        senderEmail: senderEmail,
       });
     }
 

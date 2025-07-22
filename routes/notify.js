@@ -24,15 +24,18 @@ router.post("/", async (req, res) => {
 
 router.post("/sendNotification", async (req, res) => {
   try {
-    const { email, Notification } = req.body;
-    const user = await Users.findOne({ email: email });
+    const { receiverId, message, time } = req.body;
+    const user = await Users.findOne({ _id: receiverId });
     if (!user) {
       return res.status(400).json({
         success: false,
         message: "User Not Found.",
       });
     }
-    user.Notifications.push(Notification);
+    user.Notifications.push({
+      message: message,
+      time: new Date(time),
+    });
     await user.save();
     return res.status(200).json({
       success: true,
