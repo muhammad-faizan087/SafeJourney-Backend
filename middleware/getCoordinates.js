@@ -12,7 +12,9 @@ export async function getCoordinates(address) {
   const data = await response.json();
 
   if (data.length === 0) {
-    throw new Error("Address not found");
+    // throw new Error();
+    console.log("Address not found");
+    return;
   }
 
   return {
