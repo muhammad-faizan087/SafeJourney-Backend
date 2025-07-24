@@ -33,7 +33,7 @@ router.post("/", async (req, res) => {
       message: "Verification Email sent successfully.",
     });
   } catch (error) {
-    console.error("Error in verification route:", err.message);
+    console.error("Error in verification route:", error.message);
     res.status(500).json({
       success: false,
       message: "Internal server error.",

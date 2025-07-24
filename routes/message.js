@@ -148,6 +148,12 @@ router.post("/sendMessage/", async (req, res) => {
     // Emit to receiver only
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
+      // const FullTime = new Date();
+      // const message = `You've received a new message from ${
+      //   sender.firstName + sender.lastName
+      // }`;
+      // const notification = { message, FullTime };
+      // receiver.Notifications.push(notification);
       io.to(receiverSocketId).emit("newMessage", {
         message: newMessage,
         conversationId: conversation._id,
@@ -155,7 +161,9 @@ router.post("/sendMessage/", async (req, res) => {
         receiverName: `${receiver.firstName} ${receiver.lastName}`,
         type: "Received",
         receiverId,
+        // notification,
       });
+      // await receiver.save();
     }
 
     return res.status(200).json({
