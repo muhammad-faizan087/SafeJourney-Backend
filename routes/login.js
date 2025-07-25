@@ -38,7 +38,11 @@ router.post("/", async (req, res) => {
 
     var token = jwt.sign({ email: User.email }, process.env.JWT_Secret);
 
-    res.cookie("token", token);
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true, // set to false for localhost (during dev)
+      sameSite: "None", // or 'Lax'/'Strict' based on needs
+    });
 
     return res.status(200).json({
       success: true,
