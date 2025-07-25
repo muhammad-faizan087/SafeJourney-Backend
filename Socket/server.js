@@ -22,7 +22,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://safe-journey-frontend.vercel.app/",
+      "https://safe-journey-frontend.vercel.app",
     ],
     credentials: true,
   })
