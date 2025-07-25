@@ -82,4 +82,8 @@ router.post("/changePassword", async (req, res) => {
   }
 });
 
+router.get("/debug-token", (req, res) => {
+  res.json({ token: req.cookies.token || "No token in cookies" });
+});
+
 export default router;
