@@ -40,15 +40,16 @@ router.post("/", async (req, res) => {
 
     res.setHeader("Access-Control-Allow-Credentials", "true");
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: true, // set to false for localhost (during dev)
-      sameSite: "None", // or 'Lax'/'Strict' based on needs
-    });
+    // res.cookie("token", token, {
+    //   httpOnly: true,
+    //   secure: true, // set to false for localhost (during dev)
+    //   sameSite: "None", // or 'Lax'/'Strict' based on needs
+    // });
 
     return res.status(200).json({
       success: true,
       message: "Login Successful.",
+      token,
     });
   } catch (error) {
     console.error("Login Error:", error);
