@@ -3,8 +3,8 @@ import Message from "../models/MessageModel.js";
 import Conversation from "../models/ConversationSchema.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import Users from "../models/SignupSchema.js";
-import { getReceiverSocketId } from "../Socket/server.js";
-import { io } from "../Socket/server.js";
+import { io, getReceiverSocketId } from "../Socket/server.js";
+// import { io } from "../Socket/server.js";
 
 const router = express.Router();
 
