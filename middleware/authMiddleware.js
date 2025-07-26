@@ -22,7 +22,7 @@
 import jwt from "jsonwebtoken";
 
 const authMiddleware = (req, res, next) => {
-  const authHeader = req.headers.Authorization;
+  const authHeader = req.headers.authorization;
   console.log("Authheader:", authHeader);
 
   // Expecting header: "Bearer <token>"
