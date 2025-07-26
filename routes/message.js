@@ -147,6 +147,8 @@ router.post("/sendMessage/", async (req, res) => {
 
     // Emit to receiver only
     const receiverSocketId = getReceiverSocketId(receiverId);
+    console.log("Emitting to socket ID:", receiverSocketId);
+
     if (receiverSocketId) {
       // const FullTime = new Date();
       // const message = `You've received a new message from ${
