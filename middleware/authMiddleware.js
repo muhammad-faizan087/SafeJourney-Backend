@@ -23,6 +23,7 @@ import jwt from "jsonwebtoken";
 
 const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
+  console.log("Authheader:", authHeader);
 
   // Expecting header: "Bearer <token>"
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -33,6 +34,7 @@ const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_Secret);
+    console.log("Token:", decoded);
     req.user = decoded;
     next();
   } catch (err) {
