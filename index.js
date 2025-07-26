@@ -85,6 +85,23 @@ app.use(
   })
 );
 
+app.use((req, res, next) => {
+  const allowedOrigins = [
+    "https://safe-journey-frontend.vercel.app",
+    "http://localhost:5173",
+  ];
+
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  next();
+});
+
 app.use(cookieParser());
 app.use(express.json());
 
