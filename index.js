@@ -58,6 +58,7 @@ import message from "./routes/message.js";
 import verification from "./routes/Verification.js";
 import notify from "./routes/notify.js";
 import Users from "./models/SignupSchema.js";
+import journey from "./routes/journeys.js";
 
 dotenv.config();
 
@@ -94,6 +95,7 @@ app.use("/dashboard", dashboard);
 app.use("/message", message);
 app.use("/verification", verification);
 app.use("/notify", notify);
+app.use("/journeys", journey);
 
 app.get("/", (req, res) => res.send("Hello World!"));
 
