@@ -215,6 +215,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "https://safe-journey-frontend.vercel.app",
+      "http://192.168.1.4:5173",
     ],
     credentials: true,
   })
