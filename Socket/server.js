@@ -18,15 +18,17 @@ const io = new Server(server, {
   },
 });
 
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "https://safe-journey-frontend.vercel.app",
-    ],
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin: [
+//       "http://localhost:5173",
+//       "https://safe-journey-frontend.vercel.app",
+//     ],
+//     credentials: true,
+//   })
+// );
+
+console.log("⚡ Socket server is setting up...");
 
 let users = {};
 
@@ -52,6 +54,7 @@ io.use(async (socket, next) => {
 });
 
 io.on("connection", async (socket) => {
+  console.log("✅ New socket connection:", socket.id);
   const token = socket.handshake.auth.token;
   console.log("Socket auth token:", token);
 
