@@ -43,7 +43,7 @@ io.use(async (socket, next) => {
   try {
     if (!user) return next(new Error("User not found"));
 
-    users[user._id] = socket.id;
+    users[user._id.toString()] = socket.id;
     console.log("Current users map:", users);
 
     next();
@@ -63,20 +63,22 @@ io.on("connection", async (socket) => {
   const decoded = jwt.verify(token, process.env.JWT_Secret);
   const user = await Users.findOne({ email: decoded.email });
   console.log(`User connected: ${socket.id}`);
-  users[user._id] = socket.id;
+  users[user._id.toString()] = socket.id;
   console.log("Current users map:", users);
 
   io.emit("getOnlineUsers", Object.keys(users));
 
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${socket.id}`);
-    delete users[user._id];
+    delete users[user._id.toString()];
     io.emit("getOnlineUsers", Object.keys(users));
     console.log("Current users map:", users);
   });
 });
 
 export const getReceiverSocketId = (receiverId) => {
+  console.log("📡 Looking for receiver socket with ID:", receiverId);
+  console.log("📡 Full socket map:", users);
   return users[receiverId] || null;
 };
 
