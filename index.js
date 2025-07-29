@@ -200,6 +200,7 @@ import message from "./routes/message.js";
 import verification from "./routes/Verification.js";
 import notify from "./routes/notify.js";
 import journey from "./routes/journeys.js";
+import feedback from "./routes/feedback.js";
 
 // Socket.IO setup
 import { initSocket } from "./Socket/server.js";
@@ -231,6 +232,7 @@ app.use("/message", message);
 app.use("/verification", verification);
 app.use("/notify", notify);
 app.use("/journeys", journey);
+app.use("/feedback", feedback);
 
 app.get("/", (req, res) => res.send("✅ Safe Journey Backend Running"));
 

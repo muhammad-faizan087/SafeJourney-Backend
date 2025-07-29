@@ -19,7 +19,7 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password, gender } = req.body;
 
     const userExists = await Users.findOne({ email });
 
@@ -37,6 +37,7 @@ router.post("/", async (req, res) => {
       lastName,
       email,
       password: hashedPassword,
+      gender,
     });
 
     await User.save();
