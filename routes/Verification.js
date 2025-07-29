@@ -116,7 +116,9 @@ router.post("/verfiyCode", async (req, res) => {
     User.VerificationCode = null;
     await User.save();
 
-    WelcomeEmail(User.email);
+    const UserName = User.firstName + " " + User.lastName;
+
+    WelcomeEmail(User.email, UserName);
     return res.status(200).json({
       success: true,
       message: "Welcome Email sent successfully.",
