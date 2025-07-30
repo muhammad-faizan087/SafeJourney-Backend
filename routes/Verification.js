@@ -3,7 +3,6 @@ import Users from "../models/SignupSchema.js";
 import { WelcomeEmail } from "../middleware/WelcomeEmail.js";
 import { VerificationEmail } from "../middleware/VerificationEmail.js";
 import multer from "multer";
-const upload = multer();
 
 const router = express.Router();
 
@@ -41,6 +40,16 @@ router.post("/", async (req, res) => {
   }
 });
 
+const storage = multer.memoryStorage();
+
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5 MB per file
+    files: 2,
+  },
+});
+
 router.post(
   "/postID",
   upload.fields([{ name: "front" }, { name: "back" }]),
@@ -56,7 +65,6 @@ router.post(
       }
 
       const user = await Users.findOne({ email });
-
       if (!user) {
         return res.status(404).json({
           success: false,
@@ -64,11 +72,12 @@ router.post(
         });
       }
 
-      if (req.files.front) {
+      // ✅ Save image buffers to user object
+      if (req.files.front?.[0]) {
         user.StudentID.front = req.files.front[0].buffer;
       }
 
-      if (req.files.back) {
+      if (req.files.back?.[0]) {
         user.StudentID.back = req.files.back[0].buffer;
       }
 
@@ -79,7 +88,7 @@ router.post(
         message: "Student ID uploaded successfully.",
       });
     } catch (error) {
-      console.error("Error uploading Student ID:", error);
+      console.error("❌ Error uploading Student ID:", error);
       return res.status(500).json({
         success: false,
         message: "Internal server error.",
@@ -87,6 +96,55 @@ router.post(
     }
   }
 );
+
+// router.post(
+//   "/postID",
+//   upload.fields([{ name: "front" }, { name: "back" }]),
+//   async (req, res) => {
+//     try {
+//       const { email } = req.body;
+
+//       if (!email) {
+//         console.log("Email is required.");
+//         return res.status(400).json({
+//           success: false,
+//           message: "Email is required.",
+//         });
+//       }
+
+//       const user = await Users.findOne({ email });
+
+//       if (!user) {
+//         console.log("User not found.");
+//         return res.status(404).json({
+//           success: false,
+//           message: "User not found.",
+//         });
+//       }
+
+//       if (req.files.front) {
+//         user.StudentID.front = req.files.front[0].buffer;
+//       }
+
+//       if (req.files.back) {
+//         user.StudentID.back = req.files.back[0].buffer;
+//       }
+
+//       await user.save();
+
+//       return res.status(200).json({
+//         success: true,
+//         message: "Student ID uploaded successfully.",
+//       });
+//     } catch (error) {
+//       console.error("Error uploading Student ID:", error);
+//       return res.status(500).json({
+//         success: false,
+//         message: "Internal server error.",
+//       });
+//     }
+//   }
+// );
 
 router.get("/getIDFront/:email", async (req, res) => {
   try {
