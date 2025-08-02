@@ -4,15 +4,19 @@ import Journey from "../models/journeySchema.js";
 import Users from "../models/SignupSchema.js";
 import mongoose from "mongoose";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc.js";
+import timezone from "dayjs/plugin/timezone.js";
 
 const router = express.Router();
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 router.post("/createJourneyAndGetCompanions", async (req, res) => {
   const { email, fromAddress, toAddress, date, time, status } = req.body;
 
   try {
     // const journeyTime = new Date(`${date}T${time}:00`);
-    const journeyTime = dayjs(`${date}T${time}`).toDate();
+    const journeyTime = dayjs.tz(`${date}T${time}`, "Asia/Karachi").toDate();
     const fromCoords = await getCoordinates(fromAddress);
     const toCoords = await getCoordinates(toAddress);
 
