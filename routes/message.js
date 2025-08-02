@@ -136,12 +136,12 @@ router.post("/sendMessage/", async (req, res) => {
         receiverName: `${receiver.firstName} ${receiver.lastName}`,
         senderName: `${sender.firstName} ${sender.lastName}`,
         lastMessage: message,
-        lastMessageTime: message.createdAt,
+        lastMessageTime: newMessage.createdAt,
       });
     } else {
       conversation.messages.push(newMessage._id);
       conversation.lastMessage = message;
-      conversation.lastMessageTime = message.createdAt;
+      conversation.lastMessageTime = newMessage.createdAt;
     }
 
     // Save all at once

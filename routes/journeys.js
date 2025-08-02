@@ -3,6 +3,7 @@ import { getCoordinates } from "../middleware/getCoordinates.js";
 import Journey from "../models/journeySchema.js";
 import Users from "../models/SignupSchema.js";
 import mongoose from "mongoose";
+import dayjs from "dayjs";
 
 const router = express.Router();
 
@@ -10,7 +11,8 @@ router.post("/createJourneyAndGetCompanions", async (req, res) => {
   const { email, fromAddress, toAddress, date, time, status } = req.body;
 
   try {
-    const journeyTime = new Date(`${date}T${time}:00`);
+    // const journeyTime = new Date(`${date}T${time}:00`);
+    const journeyTime = dayjs(`${date}T${time}`).toDate();
     const fromCoords = await getCoordinates(fromAddress);
     const toCoords = await getCoordinates(toAddress);
 
