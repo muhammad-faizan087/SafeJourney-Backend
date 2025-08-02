@@ -136,10 +136,12 @@ router.post("/sendMessage/", async (req, res) => {
         receiverName: `${receiver.firstName} ${receiver.lastName}`,
         senderName: `${sender.firstName} ${sender.lastName}`,
         lastMessage: message,
+        lastMessageTime: message.createdAt,
       });
     } else {
       conversation.messages.push(newMessage._id);
       conversation.lastMessage = message;
+      conversation.lastMessageTime = message.createdAt;
     }
 
     // Save all at once
@@ -293,7 +295,7 @@ router.post("/createConversation", async (req, res) => {
         messages: [],
         receiverName,
         senderName,
-        lastMessage: "",
+        // lastMessage: "",
         origin,
         destination,
         receiverEmail,

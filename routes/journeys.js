@@ -10,7 +10,7 @@ router.post("/createJourneyAndGetCompanions", async (req, res) => {
   const { email, fromAddress, toAddress, date, time, status } = req.body;
 
   try {
-    const journeyTime = new Date(`${date}T${time}:00Z`);
+    const journeyTime = new Date(`${date}T${time}:00`);
     const fromCoords = await getCoordinates(fromAddress);
     const toCoords = await getCoordinates(toAddress);
 

@@ -26,6 +26,7 @@ const conversationSchema = new mongoose.Schema(
       type: String,
       // required: true,
     },
+    lastMessageTime: { type: Date },
     origin: {
       type: String,
       required: true,
