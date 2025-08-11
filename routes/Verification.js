@@ -174,12 +174,13 @@ router.post("/verfiyCode", async (req, res) => {
     User.VerificationCode = null;
     await User.save();
 
-    const UserName = User.firstName + " " + User.lastName;
+    // const UserName = User.firstName + " " + User.lastName;
 
-    WelcomeEmail(User.email, UserName);
+    // WelcomeEmail(User.email, UserName);
     return res.status(200).json({
       success: true,
-      message: "Welcome Email sent successfully.",
+      // message: "Welcome Email sent successfully.",
+      message: "Email verified successfully.",
     });
   } catch (error) {
     console.error("Error in verification route:", err.message);
