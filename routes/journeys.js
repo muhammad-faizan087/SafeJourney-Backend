@@ -19,6 +19,8 @@ router.post("/createJourneyAndGetCompanions", async (req, res) => {
     const journeyTime = dayjs.tz(`${date}T${time}`, "Asia/Karachi").toDate();
     const fromCoords = await getCoordinates(fromAddress);
     const toCoords = await getCoordinates(toAddress);
+    const lowerBound = new Date(journeyTime.getTime() - 15 * 60 * 1000);
+    const upperBound = new Date(journeyTime.getTime() + 15 * 60 * 1000);
 
     if (!fromCoords || !toCoords) {
       return res.status(400).json({
@@ -28,43 +30,82 @@ router.post("/createJourneyAndGetCompanions", async (req, res) => {
       });
     }
 
-    const alreadyExists = await Journey.findOne({
-      email,
-      "from.address": fromAddress,
-      "to.address": toAddress,
-      date,
-      time: journeyTime,
-    });
+    // const alreadyExists = await Journey.findOne({
+    //   email,
+    //   "from.address": fromAddress,
+    //   "to.address": toAddress,
+    //   date,
+    //   time: { $gte: lowerBound, $lte: upperBound },
+    // });
 
-    if (!alreadyExists) {
-      const journeyData = {
-        email,
-        from: {
-          address: fromAddress,
-          location: {
-            type: "Point",
-            coordinates: [fromCoords.lng, fromCoords.lat],
-          },
-        },
-        to: {
-          address: toAddress,
-          location: {
-            type: "Point",
-            coordinates: [toCoords.lng, toCoords.lat],
-          },
-        },
+    // if (!alreadyExists) {
+    //   const journeyData = {
+    //     email,
+    //     from: {
+    //       address: fromAddress,
+    //       location: {
+    //         type: "Point",
+    //         coordinates: [fromCoords.lng, fromCoords.lat],
+    //       },
+    //     },
+    //     to: {
+    //       address: toAddress,
+    //       location: {
+    //         type: "Point",
+    //         coordinates: [toCoords.lng, toCoords.lat],
+    //       },
+    //     },
+    //     date,
+    //     time: journeyTime,
+    //     status,
+    //   };
+    //   const journey = new Journey(journeyData);
+    //   await journey.save();
+    // } else {
+    //   console.log("Journey with this data already exists");
+    // }
+
+    const demoEmail = "hoteb63651@hostbyt.com";
+
+    const emailsToCheck = [demoEmail, email];
+
+    for (const userEmail of emailsToCheck) {
+      const alreadyExists = await Journey.findOne({
+        email: userEmail,
+        "from.address": fromAddress,
+        "to.address": toAddress,
         date,
-        time: journeyTime,
-        status,
-      };
-      const journey = new Journey(journeyData);
-      await journey.save();
-    } else {
-      console.log("Journey with this data already exists");
-    }
+        time: { $gte: lowerBound, $lte: upperBound },
+      });
 
-    const lowerBound = new Date(journeyTime.getTime() - 5 * 60 * 1000);
-    const upperBound = new Date(journeyTime.getTime() + 5 * 60 * 1000);
+      if (!alreadyExists) {
+        const journeyData = {
+          email: userEmail,
+          from: {
+            address: fromAddress,
+            location: {
+              type: "Point",
+              coordinates: [fromCoords.lng, fromCoords.lat],
+            },
+          },
+          to: {
+            address: toAddress,
+            location: {
+              type: "Point",
+              coordinates: [toCoords.lng, toCoords.lat],
+            },
+          },
+          date,
+          time: journeyTime,
+          status,
+        };
+        const journey = new Journey(journeyData);
+        await journey.save();
+        console.log(`Journey created for ${userEmail}`);
+      } else {
+        console.log(`Journey already exists for ${userEmail}`);
+      }
+    }
 
     const fromMatches = await Journey.find({
       email: { $ne: email },
