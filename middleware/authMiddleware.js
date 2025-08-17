@@ -23,18 +23,17 @@ import jwt from "jsonwebtoken";
 
 const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  console.log("Authheader:", authHeader);
+  // console.log("Authheader:", authHeader);
 
-  // Expecting header: "Bearer <token>"
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ message: "No token. Unauthorized." });
   }
 
-  const token = authHeader.split(" ")[1]; // Extract the token
+  const token = authHeader.split(" ")[1];
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_Secret);
-    console.log("Token:", decoded);
+    // console.log("Token:", decoded);
     req.user = decoded;
     next();
   } catch (err) {
