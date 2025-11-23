@@ -18,11 +18,11 @@ export const initSocket = (httpServer) => {
     },
   });
 
-  console.log("⚡ Socket.IO server initializing...");
+  console.log("Socket.IO server initializing...");
 
   io.use(async (socket, next) => {
     const token = socket.handshake.auth.token;
-    console.log("🛡️ Socket auth token:", token);
+    // console.log("Socket auth token:", token);
 
     if (!token) return next(new Error("Unauthorized"));
 
@@ -33,16 +33,16 @@ export const initSocket = (httpServer) => {
       if (!user) return next(new Error("User not found"));
 
       users[user._id.toString()] = socket.id;
-      console.log("✅ Users map updated:", users);
+      // console.log("Users map updated:", users);
       next();
     } catch (err) {
-      console.log("❌ Auth error:", err.message);
+      console.log("Auth error:", err.message);
       next(new Error("Invalid token"));
     }
   });
 
   io.on("connection", async (socket) => {
-    console.log("✅ New socket connected:", socket.id);
+    // console.log("New socket connected:", socket.id);
 
     const token = socket.handshake.auth.token;
     const decoded = jwt.verify(token, process.env.JWT_Secret);
@@ -54,7 +54,7 @@ export const initSocket = (httpServer) => {
     }
 
     socket.on("disconnect", () => {
-      console.log("❌ Disconnected:", socket.id);
+      // console.log("Disconnected:", socket.id);
       for (const [userId, socketId] of Object.entries(users)) {
         if (socketId === socket.id) {
           delete users[userId];
@@ -62,13 +62,13 @@ export const initSocket = (httpServer) => {
         }
       }
       io.emit("getOnlineUsers", Object.keys(users));
-      console.log("📉 Updated users map:", users);
+      // console.log("Updated users map:", users);
     });
   });
 };
 
 export const getReceiverSocketId = (receiverId) => {
-  console.log("📡 Looking for socket ID of receiver:", receiverId);
+  // console.log("Looking for socket ID of receiver:", receiverId);
   return users[receiverId] || null;
 };
 

@@ -1,57 +1,27 @@
-// export async function getCoordinates(address) {
-//   const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
-//     address
-//   )}&format=json&limit=1`;
-
-//   const response = await fetch(url, {
-//     headers: {
-//       "User-Agent": "SafeJourney/1.0 (contact@example.com)", // replace with your real contact
-//     },
-//   });
-
-//   if (!response.ok) {
-//     const errorText = await response.text();
-//     console.error("Nominatim Error:", response.status, errorText);
-//     throw new Error("Failed to fetch coordinates from Nominatim.");
-//   }
-
-//   const data = await response.json();
-
-//   if (!Array.isArray(data) || data.length === 0) {
-//     console.warn("Address not found:", address);
-//     return null;
-//   }
-
-//   return {
-//     lat: parseFloat(data[0].lat),
-//     lng: parseFloat(data[0].lon),
-//   };
-// }
-
 import dotenv from "dotenv";
 dotenv.config();
 
 export async function getCoordinates(address) {
   const cleanedAddress = removeDuplicateWords(address);
 
-  // 1️⃣ Try original address
+  // Try original address
   let coords = await tryGetCoordinates(address);
   if (coords) return coords;
 
-  // 2️⃣ Try cleaned address if original fails
+  // Try cleaned address if original fails
   if (cleanedAddress !== address) {
     console.warn("Retrying with cleaned address:", cleanedAddress);
     coords = await tryGetCoordinates(cleanedAddress);
     if (coords) {
       console.log(
-        "✅ Found coordinates after cleaning duplicates for:",
+        "Found coordinates after cleaning duplicates for:",
         cleanedAddress
       );
       return coords;
     }
   }
 
-  console.error("❌ Address not found after all attempts:", address);
+  console.error("Address not found after all attempts:", address);
   return null;
 }
 
@@ -63,7 +33,7 @@ async function tryGetCoordinates(address) {
   // ---- Fallback to OpenCage ----
   const openCageCoords = await fetchOpenCage(address);
   if (openCageCoords) {
-    console.log("✅ Coordinates received via OpenCage for:", address);
+    console.log("Coordinates received via OpenCage for:", address);
     return openCageCoords;
   }
 

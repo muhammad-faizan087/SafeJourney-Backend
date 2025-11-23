@@ -46,13 +46,13 @@ app.use("/notify", notify);
 app.use("/journeys", journey);
 app.use("/feedback", feedback);
 
-app.get("/", (req, res) => res.send("✅ Safe Journey Backend Running"));
+app.get("/", (req, res) => res.send("Safe Journey Backend Running"));
 
 // DB Connection
 mongoose
   .connect(`${process.env.MONGO_URL}/SafeJourney`)
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB error:", err.message));
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error("MongoDB error:", err.message));
 
 // Socket.IO
 initSocket(server);
@@ -60,5 +60,5 @@ initSocket(server);
 // Start Server
 const port = process.env.PORT || 3000;
 server.listen(port, () => {
-  console.log(`🚀 Server + Socket.IO running on port ${port}`);
+  console.log(`Server + Socket.IO running on port ${port}`);
 });
