@@ -50,7 +50,7 @@ app.get("/", (req, res) => res.send("Safe Journey Backend Running"));
 
 // DB Connection
 mongoose
-  .connect(`${process.env.MONGO_URL}/SafeJourney`)
+  .connect(`${process.env.MONGO_Str}/SafeJourney`)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB error:", err.message));
 

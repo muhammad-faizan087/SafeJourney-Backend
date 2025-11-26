@@ -48,7 +48,7 @@ async function fetchNominatim(address) {
 
     const response = await fetch(url, {
       headers: {
-        "User-Agent": "SafeJourney/1.0 (contact@example.com)", // Replace with your contact
+        "User-Agent": "SafeJourney/1.0 (contact@example.com)",
       },
     });
 
@@ -91,7 +91,6 @@ async function fetchOpenCage(address) {
   }
 }
 
-// Utility: remove consecutive duplicate words (case-insensitive)
 function removeDuplicateWords(str) {
   return str
     .split(/\s+/)

@@ -27,7 +27,7 @@ export const initSocket = (httpServer) => {
     if (!token) return next(new Error("Unauthorized"));
 
     try {
-      const decoded = jwt.verify(token, process.env.JWT_Secret);
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const user = await Users.findOne({ email: decoded.email });
 
       if (!user) return next(new Error("User not found"));
@@ -45,7 +45,7 @@ export const initSocket = (httpServer) => {
     // console.log("New socket connected:", socket.id);
 
     const token = socket.handshake.auth.token;
-    const decoded = jwt.verify(token, process.env.JWT_Secret);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await Users.findOne({ email: decoded.email });
 
     if (user) {

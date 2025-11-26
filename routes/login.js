@@ -36,7 +36,7 @@ router.post("/", async (req, res) => {
       });
     }
 
-    var token = jwt.sign({ email: User.email }, process.env.JWT_Secret);
+    var token = jwt.sign({ email: User.email }, process.env.JWT_SECRET);
 
     res.setHeader("Access-Control-Allow-Credentials", "true");
 
